@@ -520,13 +520,15 @@ function showToast(message, type = 'info') {
 }
 
 function getDeviceIcon(name) {
-  if (!name) return '📱';
+  if (!name) return `<img src="android.png" class="device-icon-img" alt="Device">`;
   const l = name.toLowerCase();
-  if (l.includes('iphone') || l.includes('apple')) return '🍎';
-  if (l.includes('samsung') || l.includes('galaxy')) return '📱';
-  if (l.includes('laptop') || l.includes('pc')) return '💻';
-  if (l.includes('ipad') || l.includes('tablet')) return '📲';
-  return '📱';
+  if (l.includes('iphone') || l.includes('apple') || l.includes('ipad') || l.includes('mac') || l.includes('ios')) {
+    return `<img src="apple.png" class="device-icon-img" alt="Apple">`;
+  }
+  if (l.includes('laptop') || l.includes('pc') || l.includes('windows') || l.includes('desktop') || l.includes('computer')) {
+    return '💻';
+  }
+  return `<img src="android.png" class="device-icon-img" alt="Android">`;
 }
 
 function formatDate(d) { return d ? new Date(d).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : ''; }
