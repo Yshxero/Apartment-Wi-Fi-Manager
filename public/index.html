@@ -23,6 +23,10 @@
       </div>
     </div>
     <div class="header-right">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search room, tenant, MAC..." autocomplete="off">
+      </div>
       <div class="router-status" id="routerStatus">
         <span class="status-dot offline"></span>
         <span class="status-text">Router: Not Connected</span>
@@ -53,6 +57,10 @@
     <div class="stat-card">
       <div class="stat-value" id="statUnsyncedDevices">0</div>
       <div class="stat-label">Unsynced</div>
+    </div>
+    <div class="stat-card clock-card">
+      <div class="clock-time" id="liveClockTime">--:--:--</div>
+      <div class="clock-date" id="liveClockDate">Loading date...</div>
     </div>
   </section>
 

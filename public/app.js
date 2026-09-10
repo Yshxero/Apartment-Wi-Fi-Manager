@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
   loadRooms();
   loadAuditLog();
   checkRouterStatus();
+  startLiveClock();
+
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => renderRooms(e.target.value));
+  }
 
   document.getElementById('btnAddRoom').addEventListener('click', () => openModal('addRoomModal'));
   document.getElementById('addRoomForm').addEventListener('submit', handleAddRoom);
@@ -83,13 +89,24 @@ async function loadRooms() {
   } catch (err) { showToast('Failed to load rooms', 'error'); }
 }
 
-function renderRooms() {
+function renderRooms(filterQuery = '') {
   const container = document.getElementById('roomsList');
-  if (rooms.length === 0) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🏠</span><p>No rooms yet</p><p class="empty-hint">Click "+ Add Room" to get started</p></div>`;
+  const q = filterQuery.trim().toLowerCase();
+
+  let filtered = rooms;
+  if (q) {
+    filtered = rooms.filter(room => {
+      const matchRoom = room.room_number.toString().toLowerCase().includes(q);
+      const matchNotes = (room.notes || '').toLowerCase().includes(q);
+      return matchRoom || matchNotes;
+    });
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🔍</span><p>${q ? 'No matching rooms' : 'No rooms yet'}</p></div>`;
     return;
   }
-  container.innerHTML = rooms.map(room => `
+  container.innerHTML = filtered.map(room => `
     <div class="room-card ${room.id === selectedRoomId ? 'active' : ''} ${room.is_active ? '' : 'disabled'}" onclick="selectRoom(${room.id})">
       <div class="room-icon ${room.is_active ? 'active-room' : 'inactive-room'}">${room.is_active ? '🏠' : '🚫'}</div>
       <div class="room-info">
@@ -550,4 +567,20 @@ async function handleSaveSettings(e) {
   } catch (err) {
     showToast(err.message, 'error');
   }
+}
+
+// ─── Live Clock ──────────────────────────────────────────
+
+function startLiveClock() {
+  function update() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    const timeEl = document.getElementById('liveClockTime');
+    const dateEl = document.getElementById('liveClockDate');
+    if (timeEl) timeEl.textContent = timeStr;
+    if (dateEl) dateEl.textContent = dateStr;
+  }
+  update();
+  setInterval(update, 1000);
 }
