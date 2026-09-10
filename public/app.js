@@ -89,13 +89,27 @@ async function loadRooms() {
   } catch (err) { showToast('Failed to load rooms', 'error'); }
 }
 
+function setRoomFilter(mode, btn) {
+  currentRoomFilter = mode;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderRooms(document.getElementById('searchInput')?.value || '');
+}
+
 function renderRooms(filterQuery = '') {
   const container = document.getElementById('roomsList');
   const q = filterQuery.trim().toLowerCase();
 
   let filtered = rooms;
+
+  if (currentRoomFilter === 'active') {
+    filtered = filtered.filter(r => r.is_active);
+  } else if (currentRoomFilter === 'available') {
+    filtered = filtered.filter(r => r.tenant_count < r.max_persons);
+  }
+
   if (q) {
-    filtered = rooms.filter(room => {
+    filtered = filtered.filter(room => {
       const matchRoom = room.room_number.toString().toLowerCase().includes(q);
       const matchNotes = (room.notes || '').toLowerCase().includes(q);
       return matchRoom || matchNotes;
@@ -103,7 +117,7 @@ function renderRooms(filterQuery = '') {
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🔍</span><p>${q ? 'No matching rooms' : 'No rooms yet'}</p></div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🔍</span><p>${q ? 'No matching rooms' : 'No rooms found'}</p></div>`;
     return;
   }
   container.innerHTML = filtered.map(room => `
@@ -170,12 +184,22 @@ function renderRoomDetail(room, tenants) {
   `;
 }
 
+function getInitials(name) {
+  if (!name) return '👤';
+  const parts = name.trim().split(' ').filter(Boolean);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 function renderTenantCard(tenant) {
   return `
     <div class="tenant-card ${tenant.is_active ? '' : 'disabled'}">
       <div class="tenant-header">
         <div class="tenant-info">
-          <div class="tenant-name">👤 ${tenant.person_name}</div>
+          <div class="tenant-name">
+            <span class="tenant-avatar">${getInitials(tenant.person_name)}</span>
+            <span>${tenant.person_name}</span>
+          </div>
           <div class="tenant-badges">
             <span class="tenant-badge">📱 ${tenant.device_count}/${tenant.max_devices} devices</span>
             <span class="status-badge-sm ${tenant.is_active ? 'active' : 'inactive'}">

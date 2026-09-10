@@ -636,7 +636,56 @@ body::before {
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.tenant-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 10px var(--accent-primary-glow);
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Room Filter Pills ──────────────────────────────── */
+
+.room-filter-pills {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filter-pill {
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.filter-pill.active {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px var(--accent-primary-glow);
 }
 
 .tenant-badges {
