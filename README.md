@@ -48,33 +48,45 @@ Managing Wi-Fi access in apartment buildings can be frustrating when tenants sha
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- Skyworth Wi-Fi Router connected to your network
+- [Node.js](https://nodejs.org) (v16 or higher)
+- [Git](https://git-scm.com) (or download ZIP from GitHub)
 
-### 1. Installation
-Clone or download the project and install dependencies:
+---
+
+### 📥 Step-by-Step Installation on a New Laptop
+
+#### Step 1: Install Node.js
+1. Download & install **Node.js LTS** from [nodejs.org](https://nodejs.org).
+2. Follow installer prompts (keep default options checked).
+
+#### Step 2: Download the Project
+**Option A — Using Git (Terminal / PowerShell):**
+```bash
+git clone https://github.com/Yshxero/Apartment-Wi-Fi-Manager.git
+cd Apartment-Wi-Fi-Manager
+```
+
+**Option B — Direct ZIP Download:**
+1. Visit `https://github.com/Yshxero/Apartment-Wi-Fi-Manager`.
+2. Click **Code** → **Download ZIP**.
+3. Extract the ZIP folder on your laptop.
+4. Open Terminal / PowerShell inside the extracted folder.
+
+#### Step 3: Install Dependencies
+In Terminal / PowerShell inside the project folder, run:
 ```bash
 npm install
 ```
 
-### 2. Router Configuration (`.env`)
-Create a `.env` file in the root folder with your router details:
-```env
-PORT=3000
-ROUTER_IP=192.168.1.1
-ROUTER_USERNAME=admin
-ROUTER_PASSWORD=admin
-```
-
-### 3. Running the Application
-Start the server:
+#### Step 4: Run the App
 ```bash
 npm start
 ```
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
+
+#### Step 5: Open Dashboard & Configure Settings
+1. Open your browser and go to `http://localhost:3000`.
+2. Click **⚙️ Settings** in the top right header.
+3. Enter your router's **IP Address**, **Admin Username**, and **Password**, then click **Save Settings**.
 
 ---
 
