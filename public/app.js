@@ -7,6 +7,18 @@ const API = '';
 let selectedRoomId = null;
 let rooms = [];
 
+// ─── Security: HTML Sanitizer ────────────────────────────
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ─── Init ────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -124,7 +136,7 @@ function renderRooms(filterQuery = '') {
     <div class="room-card ${room.id === selectedRoomId ? 'active' : ''} ${room.is_active ? '' : 'disabled'}" onclick="selectRoom(${room.id})">
       <div class="room-icon ${room.is_active ? 'active-room' : 'inactive-room'}">${room.is_active ? '🏠' : '🚫'}</div>
       <div class="room-info">
-        <div class="room-number">Room ${room.room_number}</div>
+        <div class="room-number">Room ${escapeHtml(room.room_number)}</div>
         <div class="room-tenant">👤 ${room.tenant_count}/${room.max_persons} · 📱 ${room.device_count} device${room.device_count !== 1 ? 's' : ''}</div>
       </div>
     </div>
@@ -151,7 +163,7 @@ function renderRoomDetail(room, tenants) {
   panel.innerHTML = `
     <div class="detail-header">
       <div class="detail-title-row">
-        <div class="detail-title">Room ${room.room_number}</div>
+        <div class="detail-title">Room ${escapeHtml(room.room_number)}</div>
         <span class="status-badge ${room.is_active ? 'active' : 'inactive'}">
           ${room.is_active ? '✅ Active' : '❌ Disabled'}
         </span>
@@ -159,7 +171,7 @@ function renderRoomDetail(room, tenants) {
       <div class="detail-meta">
         <div class="detail-meta-item">👤 ${room.tenant_count}/${room.max_persons} tenants</div>
         <div class="detail-meta-item">📱 ${room.device_count} devices</div>
-        ${room.notes ? `<div class="detail-meta-item">📝 ${room.notes}</div>` : ''}
+        ${room.notes ? `<div class="detail-meta-item">📝 ${escapeHtml(room.notes)}</div>` : ''}
       </div>
       <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
         <button class="btn btn-ghost btn-sm" onclick="handleToggleRoom(${room.id})">${room.is_active ? '⏸️ Disable' : '▶️ Enable'}</button>
@@ -197,8 +209,8 @@ function renderTenantCard(tenant) {
       <div class="tenant-header">
         <div class="tenant-info">
           <div class="tenant-name">
-            <span class="tenant-avatar">${getInitials(tenant.person_name)}</span>
-            <span>${tenant.person_name}</span>
+            <span class="tenant-avatar">${escapeHtml(getInitials(tenant.person_name))}</span>
+            <span>${escapeHtml(tenant.person_name)}</span>
           </div>
           <div class="tenant-badges">
             <span class="tenant-badge">📱 ${tenant.device_count}/${tenant.max_devices} devices</span>
@@ -236,8 +248,8 @@ function renderTenantCard(tenant) {
                 <div class="sync-indicator ${device.synced_to_router ? 'synced' : 'unsynced'}" title="${device.synced_to_router ? 'Synced to router' : 'Not synced'}"></div>
                 <div class="device-icon">${getDeviceIcon(device.device_name)}</div>
                 <div class="device-info">
-                  <div class="device-name">${device.device_name || 'Unknown Device'}</div>
-                  <div class="device-mac">${device.mac_address}</div>
+                  <div class="device-name">${escapeHtml(device.device_name || 'Unknown Device')}</div>
+                  <div class="device-mac">${escapeHtml(device.mac_address)}</div>
                 </div>
                 <div class="device-actions">
                   <button class="btn btn-ghost btn-icon-only btn-sm" onclick="handleToggleDevice(${device.id})" title="${device.is_active ? 'Disable Device' : 'Enable Device'}">
@@ -459,28 +471,29 @@ function showSyncInstructions(result) {
   const panel = document.getElementById('syncPanel');
   const container = document.getElementById('syncInstructions');
   if (!result.manualInstructions) {
-    container.innerHTML = `<p style="color: var(--text-secondary);">${result.message}</p>`;
+    container.innerHTML = `<p style="color: var(--text-secondary);">${escapeHtml(result.message)}</p>`;
     panel.style.display = 'block';
     return;
   }
   const inst = result.manualInstructions;
+  const safeRouterUrl = escapeHtml(inst.routerUrl || 'http://192.168.1.1');
   container.innerHTML = `
     <div style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px;">
       <strong>⚠️ Automatic sync not configured yet.</strong> Manually update your router:
     </div>
     ${inst.steps.slice(0, 4).map((step, i) => `
-      <div class="sync-step"><div class="sync-step-number">${i + 1}</div><div>${step.replace(/^\d+\.\s*/, '')}</div></div>
+      <div class="sync-step"><div class="sync-step-number">${i + 1}</div><div>${escapeHtml(step.replace(/^\d+\.\s*/, ''))}</div></div>
     `).join('')}
     <div style="margin: 16px 0 8px; font-weight: 600; color: var(--text-primary);">MAC Addresses to Whitelist (${inst.macList.length}):</div>
     <div class="mac-list-box">
       ${inst.macList.length > 0 ? inst.macList.map(mac => `
-        <div class="mac-entry"><span>${mac}</span><span class="mac-copy-btn" onclick="copyToClipboard('${mac}')" title="Copy">📋</span></div>
+        <div class="mac-entry"><span>${escapeHtml(mac)}</span><span class="mac-copy-btn" onclick="copyToClipboard('${escapeHtml(mac)}')" title="Copy">📋</span></div>
       `).join('') : '<span style="color: var(--text-muted);">No active devices</span>'}
     </div>
     <div class="sync-step"><div class="sync-step-number">5</div><div>Click <strong>Save / Apply</strong></div></div>
     <div class="sync-step"><div class="sync-step-number">6</div><div>Repeat for both <strong>2.4GHz</strong> and <strong>5GHz</strong></div></div>
     <div style="margin-top: 16px;">
-      <a href="http://${inst.routerUrl.replace('http://', '')}" target="_blank" class="btn btn-primary btn-sm">🌐 Open Router Admin</a>
+      <a href="${safeRouterUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">🌐 Open Router Admin</a>
     </div>
   `;
   panel.style.display = 'block';
@@ -499,9 +512,9 @@ async function loadAuditLog() {
     }
     container.innerHTML = logs.map(log => `
       <div class="audit-item">
-        <span class="audit-time">${formatDateTime(log.created_at)}</span>
-        <span class="audit-action ${log.action}">${log.action}</span>
-        <span class="audit-details">${log.details}</span>
+        <span class="audit-time">${escapeHtml(formatDateTime(log.created_at))}</span>
+        <span class="audit-action ${escapeHtml(log.action)}">${escapeHtml(log.action)}</span>
+        <span class="audit-details">${escapeHtml(log.details)}</span>
       </div>
     `).join('');
   } catch (err) { console.error(err); }
@@ -538,7 +551,7 @@ function showToast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-  toast.innerHTML = `<span>${icons[type] || ''}</span> ${message}`;
+  toast.innerHTML = `<span>${icons[type] || ''}</span> <span>${escapeHtml(message)}</span>`;
   container.appendChild(toast);
   setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
@@ -572,7 +585,13 @@ async function openSettingsModal() {
     const settings = await api('GET', '/api/settings');
     document.getElementById('settingRouterIp').value = settings.router_ip || '192.168.1.1';
     document.getElementById('settingRouterUsername').value = settings.router_username || 'admin';
-    document.getElementById('settingRouterPassword').value = settings.router_password || '';
+    const pwdInput = document.getElementById('settingRouterPassword');
+    pwdInput.value = settings.router_password || '';
+    if (settings.has_router_password) {
+      pwdInput.placeholder = '•••••••• (Current password saved)';
+    } else {
+      pwdInput.placeholder = 'Enter router password';
+    }
     openModal('settingsModal');
   } catch (err) {
     showToast('Failed to load settings', 'error');
@@ -582,11 +601,21 @@ async function openSettingsModal() {
 async function handleSaveSettings(e) {
   e.preventDefault();
   try {
-    await api('POST', '/api/settings/bulk', {
-      router_ip: document.getElementById('settingRouterIp').value.trim(),
-      router_username: document.getElementById('settingRouterUsername').value.trim(),
-      router_password: document.getElementById('settingRouterPassword').value.trim(),
-    });
+    const routerIp = document.getElementById('settingRouterIp').value.trim();
+    const routerUsername = document.getElementById('settingRouterUsername').value.trim();
+    const routerPassword = document.getElementById('settingRouterPassword').value.trim();
+
+    const payload = {
+      router_ip: routerIp,
+      router_username: routerUsername,
+    };
+
+    // Only send password if changed by user and not the masked placeholder
+    if (routerPassword && routerPassword !== '••••••••') {
+      payload.router_password = routerPassword;
+    }
+
+    await api('POST', '/api/settings/bulk', payload);
     closeModal('settingsModal');
     showToast('Router settings saved successfully!', 'success');
     await checkRouterStatus();

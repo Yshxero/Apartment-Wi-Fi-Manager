@@ -1,12 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const db = require('./database/db');
 const SkyworthRouter = require('./router/skyworth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
+const MASKED_PASSWORD = '••••••••';
 
 const router = new SkyworthRouter({
   ip: db.getSetting('router_ip'),
@@ -14,7 +18,57 @@ const router = new SkyworthRouter({
   password: db.getSetting('router_password'),
 });
 
-app.use(cors());
+function refreshRouterConfig() {
+  router.ip = db.getSetting('router_ip') || process.env.ROUTER_IP || '192.168.1.1';
+  router.username = db.getSetting('router_username') || process.env.ROUTER_USERNAME || 'admin';
+  router.password = db.getSetting('router_password') || process.env.ROUTER_PASSWORD || '';
+}
+
+// ─── Security Headers (Helmet) ───────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
+
+// ─── CORS Restricted to Localhost ───────────────────────
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+if (process.env.ALLOWED_ORIGIN) {
+  allowedOrigins.push(process.env.ALLOWED_ORIGIN);
+}
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like same-origin navigations or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Blocked by CORS policy: Origin not allowed'));
+  },
+  credentials: true,
+}));
+
+// ─── Rate Limiting ──────────────────────────────────────
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // Limit each IP to 300 requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+app.use('/api/', apiLimiter);
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -186,15 +240,32 @@ app.get('/api/audit-log', (req, res) => {
 // ─── Settings ───────────────────────────────────────────
 
 app.get('/api/settings', (req, res) => {
-  try { res.json(db.getAllSettings()); }
-  catch (error) { res.status(500).json({ error: error.message }); }
+  try {
+    const settings = db.getAllSettings();
+    const hasPassword = Boolean(settings.router_password && settings.router_password.trim().length > 0);
+    const safeSettings = {
+      ...settings,
+      router_password: hasPassword ? MASKED_PASSWORD : '',
+      has_router_password: hasPassword,
+    };
+    res.json(safeSettings);
+  } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
 app.put('/api/settings', (req, res) => {
   try {
     const { key, value } = req.body;
     if (!key || value === undefined) return res.status(400).json({ error: 'Key and value required' });
+    
+    // Protect router_password: do not overwrite with masked placeholder or empty string
+    if (key === 'router_password') {
+      if (value === MASKED_PASSWORD || value === '') {
+        return res.json({ success: true, message: 'Password unchanged' });
+      }
+    }
+
     db.setSetting(key, value);
+    refreshRouterConfig();
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -203,8 +274,15 @@ app.post('/api/settings/bulk', (req, res) => {
   try {
     const settings = req.body;
     for (const [key, value] of Object.entries(settings)) {
-      if (value !== undefined) db.setSetting(key, value);
+      if (value !== undefined) {
+        // Protect router_password: do not overwrite with masked placeholder or empty string
+        if (key === 'router_password' && (value === MASKED_PASSWORD || value === '')) {
+          continue;
+        }
+        db.setSetting(key, value);
+      }
     }
+    refreshRouterConfig();
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -217,11 +295,12 @@ app.get('/{*splat}', (req, res) => {
 
 // ─── Start ──────────────────────────────────────────────
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log('');
   console.log('  ╔══════════════════════════════════════════╗');
   console.log('  ║   🏠 Apartment Wi-Fi Manager             ║');
-  console.log(`  ║   Running at http://localhost:${PORT}        ║`);
+  console.log(`  ║   Running at http://${HOST}:${PORT}        ║`);
+  console.log('  ║   Mode: Localhost Only (Protected)       ║');
   console.log('  ╚══════════════════════════════════════════╝');
   console.log('');
 });

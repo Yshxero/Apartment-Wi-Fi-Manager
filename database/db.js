@@ -69,9 +69,9 @@ const insertSetting = db.prepare(`
   INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)
 `);
 
-insertSetting.run('router_ip', '192.168.1.1');
-insertSetting.run('router_username', 'admin');
-insertSetting.run('router_password', 'Converge@sky123');
+insertSetting.run('router_ip', process.env.ROUTER_IP || '192.168.1.1');
+insertSetting.run('router_username', process.env.ROUTER_USERNAME || 'admin');
+insertSetting.run('router_password', process.env.ROUTER_PASSWORD || '');
 insertSetting.run('wifi_name', 'Apartment WiFi');
 
 // ─── Room helpers ────────────────────────────────────────

@@ -11,9 +11,9 @@
 
 class SkyworthRouter {
   constructor(config = {}) {
-    this.ip = config.ip || '192.168.1.1';
-    this.username = config.username || 'admin';
-    this.password = config.password || 'Converge@sky123';
+    this.ip = config.ip || process.env.ROUTER_IP || '192.168.1.1';
+    this.username = config.username || process.env.ROUTER_USERNAME || 'admin';
+    this.password = config.password || process.env.ROUTER_PASSWORD || '';
     this.connected = false;
     this.lastSync = null;
   }

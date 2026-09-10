@@ -98,5 +98,15 @@ When **MAC Whitelisting** mode is active on the router, all unlisted Wi-Fi devic
 
 ---
 
+## 🛡️ Recommended Security: Enable Router AP Isolation
+
+To protect tenant privacy and safeguard your admin computer:
+1. Open your Skyworth Router admin settings (`http://192.168.1.1`).
+2. Go to **Wireless / WLAN Settings** → **Advanced**.
+3. Turn **ON** **AP Isolation** (also called **Client Isolation** or **Station Separation**) for both 2.4GHz and 5GHz bands.
+4. **Why this matters**: AP Isolation blocks connected tenants from communicating with each other's devices, scanning open ports, or probing your landlord laptop on the local network.
+
+---
+
 ## 📄 License
 ISC
