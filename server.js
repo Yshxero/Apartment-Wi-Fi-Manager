@@ -58,12 +58,11 @@ app.use(cors({
     if (!origin) return callback(null, true);
     // Allow exact matches
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    // Allow any ngrok origin (for tunnel access)
-    if (origin.endsWith('.ngrok-free.app') || origin.endsWith('.ngrok.io')) return callback(null, true);
-    // Allow any vercel.app origin
-    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    // Allow any ngrok origin (including .ngrok-free.app, .ngrok-free.dev, .ngrok.app, .ngrok.io)
+    if (origin.includes('ngrok') || origin.endsWith('.vercel.app')) return callback(null, true);
     return callback(new Error('Blocked by CORS policy: Origin not allowed'));
   },
+  allowedHeaders: ['Content-Type', 'x-api-key', 'ngrok-skip-browser-warning', 'Authorization'],
   credentials: true,
 }));
 

@@ -70,7 +70,13 @@ async function api(method, url, body = null) {
   const baseUrl = (typeof getApiBaseUrl === 'function') ? getApiBaseUrl() : API;
   const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
   
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+    }
+  };
   if (apiKey) opts.headers['x-api-key'] = apiKey;
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(`${baseUrl}${url}`, opts);

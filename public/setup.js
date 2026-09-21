@@ -65,7 +65,10 @@ async function testBackendConnection(url, apiKey) {
     const cleanUrl = url.replace(/\/+$/, '');
     const opts = {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
     };
     if (apiKey) opts.headers['x-api-key'] = apiKey;
 
@@ -79,7 +82,7 @@ async function testBackendConnection(url, apiKey) {
     const data = await res.json();
     return { success: true, data };
   } catch (err) {
-    return { success: false, error: 'Cannot reach backend. Check the URL and make sure ngrok is running.' };
+    return { success: false, error: `Cannot reach backend (${err.message || 'Network error'}). Check URL and ngrok status.` };
   }
 }
 
