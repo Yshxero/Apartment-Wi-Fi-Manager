@@ -108,5 +108,55 @@ To protect tenant privacy and safeguard your admin computer:
 
 ---
 
+## 🌐 Remote Access (Vercel + ngrok)
+
+The app supports **remote access** — run the backend on your laptop, deploy the frontend to Vercel, and your friend (at the apartment) can manage everything from a web browser.
+
+### Architecture
+```
+Friend's Browser  →  Vercel (Frontend)  →  ngrok tunnel  →  Your Laptop (Backend + DB)
+```
+
+### Step 1: Generate an API Key
+Protect your backend from unauthorized access:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+Copy the output and add it to your `.env` file:
+```env
+API_KEY=your_generated_key_here
+```
+
+### Step 2: Start ngrok Tunnel
+```bash
+# Start your backend first
+npm start
+
+# In another terminal, start ngrok
+ngrok http 3000
+```
+Copy the `https://....ngrok-free.app` URL from the ngrok output.
+
+> 💡 **Tip:** Sign up for a free ngrok account to get a **static domain** that doesn't change on restart.
+
+### Step 3: Deploy Frontend to Vercel
+1. Push your code to GitHub.
+2. Go to [vercel.com](https://vercel.com) and import your repo.
+3. Vercel will auto-detect the `vercel.json` config and deploy the `public/` folder.
+4. Share the Vercel URL with your friend.
+
+### Step 4: Your Friend Connects
+1. Friend opens the Vercel URL in their browser.
+2. A **setup modal** appears asking for:
+   - **Backend URL**: Your ngrok URL (e.g., `https://abc123.ngrok-free.app`)
+   - **API Key**: The key from your `.env` file
+3. Click **Connect** — done! Settings are saved in their browser.
+
+### Keeping It Running
+- Your laptop must be running `npm start` + `ngrok http 3000` for the remote access to work.
+- If you restart ngrok (free tier without static domain), share the new URL with your friend — they can update it via the 🔗 Connection button.
+
+---
+
 ## 📄 License
 ISC

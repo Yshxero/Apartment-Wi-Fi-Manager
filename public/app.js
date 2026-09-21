@@ -3,9 +3,10 @@
    Room → Tenant → Device
    ═══════════════════════════════════════════════════════════ */
 
-const API = '';
+const API = ''; // overridden by setup.js in remote mode
 let selectedRoomId = null;
 let rooms = [];
+let currentRoomFilter = 'all';
 
 // ─── Security: HTML Sanitizer ────────────────────────────
 
@@ -22,10 +23,15 @@ function escapeHtml(str) {
 // ─── Init ────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadDashboard();
-  loadRooms();
-  loadAuditLog();
-  checkRouterStatus();
+  // Initialize connection setup (for remote/Vercel mode)
+  const needsSetup = (typeof initConnectionSetup === 'function') ? initConnectionSetup() : false;
+  
+  if (!needsSetup) {
+    loadDashboard();
+    loadRooms();
+    loadAuditLog();
+    checkRouterStatus();
+  }
   startLiveClock();
 
   const searchInput = document.getElementById('searchInput');
@@ -61,9 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── API ─────────────────────────────────────────────────
 
 async function api(method, url, body = null) {
+  const baseUrl = (typeof getApiBaseUrl === 'function') ? getApiBaseUrl() : API;
+  const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
+  
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (apiKey) opts.headers['x-api-key'] = apiKey;
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(`${API}${url}`, opts);
+  const res = await fetch(`${baseUrl}${url}`, opts);
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Something went wrong');
   return data;

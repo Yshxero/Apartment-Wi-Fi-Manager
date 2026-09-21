@@ -9,7 +9,8 @@ const SkyworthRouter = require('./router/skyworth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
+const API_KEY = process.env.API_KEY || '';
 const MASKED_PASSWORD = '••••••••';
 
 const router = new SkyworthRouter({
@@ -39,25 +40,47 @@ app.use(helmet({
   },
 }));
 
-// ─── CORS Restricted to Localhost ───────────────────────
+// ─── CORS ────────────────────────────────────────────────
 const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ];
-if (process.env.ALLOWED_ORIGIN) {
+// Add Vercel frontend origin(s)
+if (process.env.ALLOWED_ORIGINS) {
+  process.env.ALLOWED_ORIGINS.split(',').forEach(o => allowedOrigins.push(o.trim()));
+} else if (process.env.ALLOWED_ORIGIN) {
   allowedOrigins.push(process.env.ALLOWED_ORIGIN);
 }
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like same-origin navigations or curl)
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    // Allow requests with no origin (same-origin navigations, curl, mobile apps)
+    if (!origin) return callback(null, true);
+    // Allow exact matches
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Allow any ngrok origin (for tunnel access)
+    if (origin.endsWith('.ngrok-free.app') || origin.endsWith('.ngrok.io')) return callback(null, true);
+    // Allow any vercel.app origin
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
     return callback(new Error('Blocked by CORS policy: Origin not allowed'));
   },
   credentials: true,
 }));
+
+// ─── API Key Authentication ─────────────────────────────
+function apiKeyAuth(req, res, next) {
+  // Skip auth if no API_KEY is configured (local-only mode)
+  if (!API_KEY) return next();
+  
+  // Skip auth for static file serving (non-API routes)
+  if (!req.path.startsWith('/api/')) return next();
+  
+  const providedKey = req.headers['x-api-key'];
+  if (providedKey === API_KEY) return next();
+  
+  return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+}
+app.use(apiKeyAuth);
 
 // ─── Rate Limiting ──────────────────────────────────────
 const apiLimiter = rateLimit({

@@ -9,6 +9,180 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ═══ Connection Setup — Premium Glassmorphism ═══ */
+
+    .setup-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .setup-form .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .setup-form input {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .setup-status {
+      padding: 12px 16px;
+      border-radius: var(--radius-md, 12px);
+      font-size: 13px;
+      font-weight: 500;
+      min-height: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(8px);
+      border: 1px solid transparent;
+    }
+
+    .setup-status.error {
+      background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.06));
+      color: #f87171;
+      border-color: rgba(239,68,68,0.2);
+      box-shadow: 0 0 20px rgba(239,68,68,0.08);
+    }
+
+    .setup-status.success {
+      background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.06));
+      color: #4ade80;
+      border-color: rgba(34,197,94,0.2);
+      box-shadow: 0 0 20px rgba(34,197,94,0.08);
+      animation: successPulse 1.5s ease-in-out;
+    }
+
+    .setup-status.testing {
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.06));
+      color: #a5b4fc;
+      border-color: rgba(99,102,241,0.2);
+      box-shadow: 0 0 20px rgba(99,102,241,0.08);
+      animation: testingPulse 1.2s ease-in-out infinite;
+    }
+
+    .setup-status:empty { display: none; }
+
+    @keyframes testingPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.995); }
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(0.98); opacity: 0.7; }
+      50% { transform: scale(1.01); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .setup-hint {
+      font-size: 12px;
+      color: var(--text-muted, #64748b);
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    .setup-hint code {
+      background: rgba(99,102,241,0.15);
+      color: #a5b4fc;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+
+    .setup-divider {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-color, rgba(148,163,184,0.15)), transparent);
+      margin: 6px 0;
+    }
+
+    /* ═══ Connection Indicator Pill ═══ */
+
+    #connectionIndicator {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: var(--glass-bg, rgba(26,31,53,0.8));
+      border: 1px solid var(--glass-border, rgba(148,163,184,0.08));
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    #connectionIndicator:hover {
+      border-color: rgba(148,163,184,0.2);
+      background: rgba(26,31,53,0.95);
+    }
+
+    .conn-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      transition: all 0.4s ease;
+    }
+
+    .conn-dot.online {
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74,222,128,0.6), 0 0 20px rgba(74,222,128,0.2);
+      animation: dotGlow 2s ease-in-out infinite;
+    }
+
+    .conn-dot.offline {
+      background: #f87171;
+      box-shadow: 0 0 8px rgba(248,113,113,0.6), 0 0 20px rgba(248,113,113,0.2);
+      animation: dotGlow 1.5s ease-in-out infinite;
+    }
+
+    .conn-dot.local {
+      background: #818cf8;
+      box-shadow: 0 0 8px rgba(129,140,248,0.6), 0 0 20px rgba(129,140,248,0.2);
+      animation: dotGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes dotGlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .conn-text {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    /* ═══ Setup Modal Header Branding ═══ */
+
+    #connectionSetupModal .modal-header h3 {
+      background: linear-gradient(135deg, #818cf8, #a78bfa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    #connectionSetupModal .modal {
+      border: 1px solid rgba(99,102,241,0.15);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 60px rgba(99,102,241,0.08);
+    }
+
+    /* Disconnect button styling */
+    #setupDisconnectBtn {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+    #setupDisconnectBtn:hover {
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
   <!-- ─── Header ─────────────────────────────────── -->
@@ -31,6 +205,10 @@
         <span class="status-dot offline"></span>
         <span class="status-text">Router: Not Connected</span>
       </div>
+      <div id="connectionIndicator" style="display: flex; align-items: center;"></div>
+      <button class="btn btn-ghost" id="btnConnection" title="Backend Connection" style="display: none;">
+        <span class="btn-icon">🔗</span> Connection
+      </button>
       <button class="btn btn-ghost" id="btnSettings" title="Router & App Settings">
         <span class="btn-icon">⚙️</span> Settings
       </button>
@@ -296,6 +474,34 @@
     </div>
   </div>
 
+  <!-- ─── Connection Setup Modal ───────────────── -->
+  <div class="modal-overlay" id="connectionSetupModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🔗 Connect to Backend</h3>
+        <button class="btn btn-ghost btn-sm modal-close" data-modal="connectionSetupModal">✕</button>
+      </div>
+      <form class="setup-form" id="connectionSetupForm" onsubmit="handleSetupSubmit(event)">
+        <div class="form-group">
+          <label for="setupBackendUrl">Backend URL <span class="required">*</span></label>
+          <input type="url" id="setupBackendUrl" placeholder="https://your-subdomain.ngrok-free.app" required>
+          <span class="setup-hint">The ngrok URL where your backend is running.<br>Run <code>ngrok http 3000</code> on your laptop to get this.</span>
+        </div>
+        <hr class="setup-divider">
+        <div class="form-group">
+          <label for="setupApiKey">API Key</label>
+          <input type="password" id="setupApiKey" placeholder="Your secret API key">
+          <span class="setup-hint">The API_KEY from your backend's .env file. Leave blank if not set.</span>
+        </div>
+        <div id="setupStatus" class="setup-status"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="handleDisconnect()" id="setupDisconnectBtn" style="color: var(--color-danger);">Disconnect</button>
+          <button type="submit" class="btn btn-primary" id="setupSubmitBtn">Connect</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ─── Toast & Confirm ────────────────────────── -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -312,6 +518,7 @@
     </div>
   </div>
 
+  <script src="setup.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
