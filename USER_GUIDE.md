@@ -31,6 +31,17 @@ Before syncing devices, configure the Skyworth router credentials:
 
 ---
 
+> ⚠️ **CRITICAL: DO NOT LOCK YOURSELF OUT!**
+> 
+> If your laptop or phone connects to the router over **Wi-Fi** (instead of a LAN cable), turning on MAC Filtering / Allow List mode will **block your own device** unless its MAC address is registered first!
+> 
+> **To avoid getting locked out:**
+> 1. **Register Admin Devices First**: Add your laptop's MAC address and your friend's phone/laptop MAC address into the Wi-Fi Manager app under an "Admin / Management" room or tenant.
+> 2. **Keep Admin Devices Active**: Ensure the toggle for admin devices remains **ON** (green) so they are always allowed on the Wi-Fi network.
+> 3. **LAN Cable Backup**: Connecting your laptop to the router using an Ethernet / LAN cable bypasses Wi-Fi MAC filtering, giving you guaranteed access.
+
+---
+
 ## 3️⃣ Managing Rooms, Tenants & Devices
 
 ### A. Adding a Room
