@@ -201,20 +201,22 @@
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="Search room, tenant, MAC..." autocomplete="off">
       </div>
-      <div class="router-status" id="routerStatus">
-        <span class="status-dot offline"></span>
-        <span class="status-text">Router: Not Connected</span>
+      <div class="header-actions">
+        <div class="router-status" id="routerStatus">
+          <span class="status-dot offline"></span>
+          <span class="status-text">Router: Offline</span>
+        </div>
+        <div id="connectionIndicator" style="display: flex; align-items: center;"></div>
+        <button class="btn btn-ghost" id="btnConnection" title="Backend Connection" style="display: none;">
+          <span class="btn-icon">🔗</span> Connection
+        </button>
+        <button class="btn btn-ghost" id="btnSettings" title="Router & App Settings">
+          <span class="btn-icon">⚙️</span> Settings
+        </button>
+        <button class="btn btn-sync" id="btnSync" title="Sync MAC whitelist to router">
+          <span class="btn-icon">🔄</span> Sync
+        </button>
       </div>
-      <div id="connectionIndicator" style="display: flex; align-items: center;"></div>
-      <button class="btn btn-ghost" id="btnConnection" title="Backend Connection" style="display: none;">
-        <span class="btn-icon">🔗</span> Connection
-      </button>
-      <button class="btn btn-ghost" id="btnSettings" title="Router & App Settings">
-        <span class="btn-icon">⚙️</span> Settings
-      </button>
-      <button class="btn btn-sync" id="btnSync" title="Sync MAC whitelist to router">
-        <span class="btn-icon">🔄</span> Sync to Router
-      </button>
     </div>
   </header>
 
