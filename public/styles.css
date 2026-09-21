@@ -1259,6 +1259,8 @@ form {
   .header-right {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .stat-card {
@@ -1267,6 +1269,31 @@ form {
 
   .stat-value {
     font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-bar {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .header {
+    padding: 10px 12px;
+  }
+
+  .logo h1 {
+    font-size: 18px;
+  }
+
+  .modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  /* Prevents iOS Safari auto-zooming on input focus */
+  .form-control, input[type="text"], input[type="password"], input[type="number"], select {
+    font-size: 16px !important;
   }
 }
 
