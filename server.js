@@ -8,6 +8,7 @@ const db = require('./database/db');
 const SkyworthRouter = require('./router/skyworth');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 const API_KEY = process.env.API_KEY || '';
